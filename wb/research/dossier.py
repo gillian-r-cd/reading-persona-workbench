@@ -106,7 +106,7 @@ def run_research(cfg, db, session_id: str, subject: str, fetcher,
         db.x("UPDATE research_jobs SET status=?, finished_at=?, error=? WHERE id=?",
              ("offline", now_iso(), "no_urls_or_search_unavailable", job_id))
         return {"status": "offline", "job_id": job_id, "sources": 0, "claims": 0,
-                "reason": "没有可用的检索来源（未配置搜索或未提供 URL）"}
+                "reason": "研究需要来源：再次点击「联网研究」可粘贴 URL，或在设置中配置搜索服务。"}
 
     sources, claims, failures = [], [], 0
     for url in urls:

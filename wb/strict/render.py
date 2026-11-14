@@ -60,7 +60,8 @@ def abstain_text(persona: dict, near: list[dict]) -> str:
     if kind == "QUOTED_PERSON":
         head = "书中没有记录我对这个问题的看法。"
     elif kind == "SYNTHETIC":
-        head = "文本没有提供足以回答这个问题的证据。"
+        head = ("作为审稿人，我在文本中没有找到可引用的反证或限定，"
+                "因此不提出没有依据的质疑。")
     else:
         head = "在这本书里，我没有找到能直接回答这个问题的证据。"
     if near:

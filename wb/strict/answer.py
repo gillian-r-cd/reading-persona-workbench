@@ -179,6 +179,8 @@ def answer_question(cfg, db, session_id: str, question: str, provider,
         trace.set_ledger(led)
         trace.response = {"text": text, "abstained": abstained}
         path = trace.save()
+        used = set(re.findall(r"\[(S\d+)\]", text))
+        cites = [c for c in cites if c["sid"] in used]
         row = db.one("SELECT title FROM sessions WHERE id=?", (session_id,))
         if row and (row["title"] or "") in ("会话", "新会话", ""):
             db.x("UPDATE sessions SET title=?, updated_at=? WHERE id=?",
@@ -260,6 +262,10 @@ def answer_question(cfg, db, session_id: str, question: str, provider,
                      "text": c["text"][:80]} for c in chunks[:10]],
          "snippets": [s["block_id"] for s in snippets],
          "counter": [c["block_id"] for c in counter]})
+    if persona.get("kind") == "SYNTHETIC":
+        if not counter:
+            return abstain("synthetic_no_counter")
+        snippets = []
     trace.stage("retrieve", chunks=len(chunks), snippets=len(snippets), counter=len(counter),
                 queries=len(queries))
 
@@ -302,7 +308,8 @@ def answer_question(cfg, db, session_id: str, question: str, provider,
             raw_claims = positions[:2]
         else:
             t_gen = time.perf_counter()
-            raw_claims = generator.generate(db, provider, search_q, snippets, counter, main_doc)
+            raw_claims = generator.generate(db, provider, search_q, snippets, counter, main_doc,
+                                            persona_kind=persona.get("kind", "AUTHOR"))
             log("generate", t_gen, {"question": search_q, "snippets": len(snippets)},
                 {"claims": len(raw_claims),
                  "generators": sorted({c.get("meta", {}).get("generator", "?") for c in raw_claims})})

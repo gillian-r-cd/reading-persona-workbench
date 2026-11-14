@@ -20,6 +20,9 @@ def build_prompt(persona: dict, card: str, title: str, question: str,
     doc_titles = doc_titles or {}
     lines = [SYSTEM, "", f"你的身份：{persona.get('name', '作者')}，以《{title}》作者/相关人物的身份回答。",
              "语气要求：" + str(persona.get("voice", {}).get("register", "克制、书面"))]
+    if persona.get("kind") == "SYNTHETIC":
+        lines.append("你的任务是质疑，不是复述：优先引用限定、反例、样本与因果问题；"
+                     "如果没有可引用的反证，就直接说明“书中没有给出可引用的反证”。")
     lines.append("\n可用片段：")
     for s in snippets:
         kind = "（反方/限定）" if s.get("role") in ("counter", "qualifier") else ""

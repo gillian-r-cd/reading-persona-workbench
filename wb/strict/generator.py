@@ -37,13 +37,32 @@ def _keyword_overlap(question: str, text: str) -> float:
 
 
 def generate_extractive(db, question: str, snippets: list[dict], counter: list[dict],
-                        doc_id: str, max_claims: int = 5) -> list[dict]:
+                        doc_id: str, max_claims: int = 5,
+                        persona_kind: str = "AUTHOR") -> list[dict]:
+    if persona_kind == "SYNTHETIC":
+        out = []
+        for c in counter:
+            block = {"id": c["block_id"], "text": c["text"]}
+            for sent in split_sentences(c["text"]):
+                text = sent["text"]
+                if len(text) < 6:
+                    continue
+                if not re.search(r"然而|但是|尽管|相反|批评|局限|不适用|仅适用|样本|因果|"
+                                 r"证据|质疑|例外|错误|缺乏|无法|尚未|不能", text):
+                    continue
+                out.append(_claim_from_sentence(c["block_id"], block, sent, 0.75,
+                                                role="critique", generator="extractive"))
+                break
+            if len(out) >= 3:
+                break
+        return out
     numeric = bool(NUMERIC_Q.search(question))
     thesis_q = bool(THESIS_Q.search(question))
     yesno = bool(YESNO_Q.search(question))
     quote_q = bool(re.search(r"说了什么|说过什么|原话|引述|quote|said", question, re.I))
     boundary_q = bool(re.search(r"适用|边界|条件|所有|scope|boundary|always", question, re.I))
     future_q = bool(re.search(r"未来|前景|目标|前途|出路|愿景|才能有", question))
+    interview_q = bool(re.search(r"访谈|采访|interview", question))
     claims: list[dict] = []
 
     if thesis_q:
@@ -73,6 +92,8 @@ def generate_extractive(db, question: str, snippets: list[dict], counter: list[d
                 score += 0.45
             if future_q and re.search(r"才能|必须|要建立|目的|前途|新中国|独立|解放|胜利|联合|共和", text):
                 score += 0.35
+            if interview_q and sn.get("doc_id") and sn["doc_id"] != doc_id:
+                score += 0.5
             score += 0.08 * float(sn.get("score", 0))
             scored.append((score, sn, block, sent, idx, sents))
     scored.sort(key=lambda x: -x[0])
@@ -120,11 +141,16 @@ def generate_extractive(db, question: str, snippets: list[dict], counter: list[d
 
 
 def generate_llm(provider, question: str, snippets: list[dict], doc_id: str,
-                 max_claims: int = 5) -> list[dict]:
+                 max_claims: int = 5, persona_kind: str = "AUTHOR") -> list[dict]:
     listing = "\n\n".join(
         f"[{i}] block={s['block_id']} page={s.get('page')}\n{s['text']}"
         for i, s in enumerate(snippets, start=1))
+    role_line = ("你是审稿人：你的任务是质疑论证与证据，不要复述作者结论；"
+                 "优先引用限定、反例、样本与因果问题。\n"
+                 if persona_kind == "SYNTHETIC" else
+                 "你是作者：用第一人称陈述书中的判断。\n")
     prompt = (
+        role_line +
         "你是严格的事实抽取器。只能使用下面给出的原文片段，逐字引用，不得改写数字。\n"
         "输出 JSON：{\"claims\":[{\"text\":\"...\",\"block_id\":\"...\",\"quote\":\"...\"}]}\n"
         "规则：quote 必须是片段中的逐字子串；text 必须是 quote 的原句或原句的逐字子串；"
@@ -171,12 +197,13 @@ def _parse_json(raw: str) -> dict:
 
 
 def generate(db, provider, question: str, snippets: list[dict], counter: list[dict],
-             doc_id: str) -> list[dict]:
+             doc_id: str, persona_kind: str = "AUTHOR") -> list[dict]:
     if getattr(provider, "name", "offline") != "offline":
         try:
-            claims = generate_llm(provider, question, snippets, doc_id)
+            claims = generate_llm(provider, question, snippets, doc_id, persona_kind=persona_kind)
             if claims:
                 return claims
         except Exception:
             pass
-    return generate_extractive(db, question, snippets, counter, doc_id)
+    return generate_extractive(db, question, snippets, counter, doc_id,
+                               persona_kind=persona_kind)

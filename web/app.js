@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const BUILD = "5";
+  const BUILD = "6";
   try {
     if (document.body.dataset.build !== BUILD) {
       const u = new URL(location.href);
@@ -542,9 +542,13 @@
     if (!state.session) return setStatus("先开始一个会话");
     const subject = await askText("联网研究", "远程办公", "输入主题：作者、人物或论点");
     if (!subject) return;
+    const raw = await askText("研究来源（可选）", "", "粘贴 1–3 个 http(s) URL，逗号分隔；留空则尝试自动搜索");
+    if (raw === null) return;
+    const urls = raw.split(/[\s,，]+/).filter((u) => /^https?:\/\//.test(u));
     setStatus("联网研究中……");
     try {
-      const r = await api(`/api/sessions/${state.session}/research`, { method: "POST", json: { subject } });
+      const r = await api(`/api/sessions/${state.session}/research`, { method: "POST",
+        json: urls.length ? { subject, urls } : { subject } });
       if (r.status === "offline") {
         addBubble("assistant", `<span class="abstain">${esc(r.reason || "离线，无法研究")}</span>`, "研究");
       } else {
