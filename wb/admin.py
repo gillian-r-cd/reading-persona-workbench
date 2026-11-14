@@ -80,6 +80,20 @@ def import_vault(cfg, zip_path: str | Path, force: bool = False) -> dict:
                 shutil.copy2(p, dest)
     from .db import DB
     db = DB(cfg.db_path)
+    # rewrite absolute paths from the source machine to this vault
+    vault = Path(cfg.vault)
+    for doc in db.q("SELECT id, source_path FROM documents"):
+        old = Path(doc["source_path"] or "")
+        if old.name:
+            new = vault / "originals" / old.name
+            if new.exists():
+                db.x("UPDATE documents SET source_path=? WHERE id=?", (str(new), doc["id"]))
+    for src in db.q("SELECT id, snapshot_path FROM sources"):
+        old = Path(src["snapshot_path"] or "")
+        if old.name:
+            new = vault / "snapshots" / old.name
+            if new.exists():
+                db.x("UPDATE sources SET snapshot_path=? WHERE id=?", (str(new), src["id"]))
     return {"ok": True, "documents": db.one("SELECT count(*) c FROM documents")["c"],
             "blocks": db.one("SELECT count(*) c FROM blocks")["c"]}
 

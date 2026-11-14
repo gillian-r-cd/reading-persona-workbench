@@ -41,6 +41,12 @@ def run() -> dict:
                                  "anchor": json.dumps(a, ensure_ascii=False), "color": "yellow",
                                  "note": "test", "created_at": "2026-01-01T00:00:00+08:00",
                                  "status": "ok", "session_id": sid})
+        snap = Path(cfg.vault) / "snapshots" / "test.html"
+        snap.write_text("<html>snapshot</html>", "utf-8")
+        db.insert("sources", {"id": "s_test", "url": "https://example.com", "final_url": "https://example.com",
+                              "title": "Example", "fetched_at": "2026-01-01T00:00:00+08:00",
+                              "snapshot_hash": "test", "snapshot_path": str(snap), "tier": "academic",
+                              "content_hash": "h", "http_status": 200, "meta": "{}"})
         before = admin.vault_stats(db, cfg)
         out = Path(tempfile.mkdtemp()) / "backup.zip"
         exp = admin.export_vault(cfg, out)
@@ -60,6 +66,13 @@ def run() -> dict:
             ck.eq("import preserves claims", after["claims"], before["claims"])
             ck.true("imported anchors resolve",
                     db2.one("SELECT count(*) c FROM anchors WHERE id='a_test'")["c"] == 1)
+            d2 = db2.one("SELECT source_path FROM documents")
+            s2 = db2.one("SELECT snapshot_path FROM sources")
+            root2 = Path(cfg2.vault).resolve()
+            ck.true("document path rewritten", Path(d2["source_path"]).exists()
+                    and Path(d2["source_path"]).resolve().is_relative_to(root2), d2["source_path"])
+            ck.true("snapshot path rewritten", Path(s2["snapshot_path"]).exists()
+                    and Path(s2["snapshot_path"]).resolve().is_relative_to(root2), s2["snapshot_path"])
             wb2 = Workbench(td2)
             doc2 = wb2.documents()[0]["id"]
             s2 = wb2.create_session(doc2)

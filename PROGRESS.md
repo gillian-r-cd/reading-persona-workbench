@@ -191,3 +191,10 @@
 - 目录根因：EPUB spine 无标题时用 manifest id 兜底。修复：用首块文本生成标题、跳过空 spine、加 `repair_section_titles` 修复存量（毛选 223 个重命名、1 个空节删除）；目录改为可折叠、限高滚动、只显示有内容的章节。
 - Fetch 根因：开发过程中重启本地服务，旧页面在途请求被断开。UI 现在把网络错误翻译为“无法连接本地服务（可能正在重启），请刷新页面”，不再裸报 `Failed to fetch`。
 - 构建 v8；`verify.py all` 14 套件 + UI 31/31 全 PASS。
+
+## 跨设备导出（2026-11-14 19:20）
+
+- 新增 `manage.py export/import/stats`；导出 zip 含 DB 备份、原文件、研究快照、trace、可选 settings。
+- `import` 自动把 `documents.source_path` 与 `sources.snapshot_path` 重写到新 vault，避免换机后快照/原文件丢失。
+- 验证：M9 增加路径重写断言；导出→导入后文档与快照均存在且落在新 vault 内。
+- `verify.py all` 14 套件全 PASS。

@@ -122,6 +122,62 @@ vault/                   全部本地数据（SQLite + 原文件 + 快照 + trac
 - 导出备份：`wb.admin.export_vault`（zip + manifest + 每文件 SHA256），默认不含 API key。
 - 删除文档会清掉 blocks/chunks/claims/personas/anchors/highlights/sessions，并扫描残留。
 
+## 迁移到另一台电脑
+
+代码和内容分开走。DSH 账号本身不会同步工作区文件。
+
+### 1. 代码
+
+私有仓库，先在新机器上认证 GitHub，然后：
+
+```bash
+git clone https://github.com/gillian-r-cd/reading-persona-workbench.git
+cd reading-persona-workbench
+```
+
+无法访问 GitHub 时，直接拷贝项目目录，**排除 `vault/`**。
+
+### 2. 内容（素材、项目、会话、人格、研究快照）
+
+旧机器：
+
+```bash
+python manage.py export --out ~/Desktop/wb-backup.zip --with-secrets
+```
+
+- `--with-secrets` 会把 `settings.json` 里的模型/搜索 Key 一起打包；只在可信设备之间使用。不加则到新机器重新填。
+- 包里包含 `meta.db`、`originals/`、`snapshots/`、`traces/`、`settings.json`。
+
+新机器：
+
+```bash
+python manage.py import --zip ~/Downloads/wb-backup.zip --force
+```
+
+导入时会自动把文档、快照的绝对路径改写到新 vault，不需要手工改。
+
+### 3. 运行
+
+```bash
+python run.py --port 8765
+```
+
+用 DSH 内置 Python（自带的 numpy/lxml/python-docx）：
+
+```bash
+~/.dsh/dsh-runtimes/*/dependencies/python/bin/python3 run.py --port 8765
+```
+
+如果新机器的端口不同，打开对应 `http://127.0.0.1:<port>` 即可；项目、会话、人格、研究档案都会原样出现。
+
+### 4. 检查
+
+```bash
+python manage.py stats
+```
+
+会输出文档/块/会话/快照数量和完整性检查（缺失快照、孤儿锚点等）。
+
 ## 验证方式
 
 `verify.py` 用自研 `Checker`（不依赖 pytest），每个里程碑把「冻结 fixture + 指标 + 阈值」跑成 PASS/FAIL。
