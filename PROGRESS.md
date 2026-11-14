@@ -176,3 +176,11 @@
   - 研究弹窗第二步可粘贴 URL；离线提示改为可操作文案。
   - 构建号 v6。
 - 验证：无头 DOM 走查 31/31 通过（含带 URL 的真实研究）；`verify.py all` 13 套件全 PASS。
+
+## 自动联网搜索（2026-11-14 18:45）
+
+- 新增 `wb/research/search.py`：Tavily / Brave / Serper / SearXNG 四种 provider，`none` 时保持粘贴 URL。
+- 设置页增加「联网搜索服务 / Key / 端点」；`GET /api/settings` 只返回 has_key，不泄露密钥。
+- 研究链路支持 `search(queries)`：无 URL 时自动搜索 → 抓取 → 快照 → dossier，并在 pipeline 内自动 attach 到会话。
+- 验证：`verify.py SEARCH`（四个 provider 的本地 stub + 自动搜索研究）；`verify.py all` 14 套件全 PASS；UI 走查 31/31。
+- 备注：未内置搜索引擎爬虫；需要真实搜索质量请配置 Tavily/Brave/Serper 或自建 SearXNG。

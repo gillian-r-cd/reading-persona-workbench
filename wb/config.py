@@ -45,6 +45,14 @@ class Config:
     def save_settings(self, data: dict) -> None:
         self.settings_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), "utf-8")
 
+    def search_settings(self) -> dict:
+        s = self.load_settings().get("search", {}) or {}
+        return {
+            "mode": s.get("mode", "none"),
+            "endpoint": s.get("endpoint", ""),
+            "api_key": s.get("api_key", ""),
+        }
+
     def provider_settings(self) -> dict:
         s = self.load_settings().get("provider", {})
         return {

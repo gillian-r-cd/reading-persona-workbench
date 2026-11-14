@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const BUILD = "6";
+  const BUILD = "7";
   try {
     if (document.body.dataset.build !== BUILD) {
       const u = new URL(location.href);
@@ -542,7 +542,8 @@
     if (!state.session) return setStatus("先开始一个会话");
     const subject = await askText("联网研究", "远程办公", "输入主题：作者、人物或论点");
     if (!subject) return;
-    const raw = await askText("研究来源（可选）", "", "粘贴 1–3 个 http(s) URL，逗号分隔；留空则尝试自动搜索");
+    const raw = await askText("研究来源（可选）", "",
+      "粘贴 1–3 个 http(s) URL；留空则使用设置中配置的搜索服务");
     if (raw === null) return;
     const urls = raw.split(/[\s,，]+/).filter((u) => /^https?:\/\//.test(u));
     setStatus("联网研究中……");
@@ -570,12 +571,19 @@
     $("#prov-model").value = s.model || "";
     $("#prov-key").value = "";
     $("#prov-key").placeholder = s.has_key ? "已保存（留空则不修改）" : "sk-...";
+    const search = s.search || {};
+    setSelect($("#search-mode"), search.mode || "none");
+    $("#search-endpoint").value = search.endpoint || "";
+    $("#search-key").value = "";
+    $("#search-key").placeholder = search.has_key ? "已保存（留空则不修改）" : "API Key";
     $("#modal").classList.remove("hidden");
   }
   async function saveSettings() {
     await api("/api/settings", { method: "POST", json: {
       mode: $("#prov-mode").value, base_url: $("#prov-url").value,
-      api_key: $("#prov-key").value, model: $("#prov-model").value } });
+      api_key: $("#prov-key").value, model: $("#prov-model").value,
+      search_mode: $("#search-mode").value, search_endpoint: $("#search-endpoint").value,
+      search_api_key: $("#search-key").value } });
     $("#modal").classList.add("hidden"); setStatus("设置已保存");
   }
 

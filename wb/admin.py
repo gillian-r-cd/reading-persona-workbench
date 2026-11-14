@@ -186,7 +186,9 @@ def network_audit(root: Path) -> dict:
         import re as _re
         if _re.search(r"(?m)^\s*(import|from)\s+(urllib\.request|http\.client|socket)\b", text):
             hits.append(str(p.relative_to(root)))
-    return {"modules": hits, "ok": set(hits) <= {"wb/providers/base.py", "wb/research/fetch.py"}}
+    return {"modules": hits,
+            "ok": set(hits) <= {"wb/providers/base.py", "wb/research/fetch.py",
+                                "wb/research/search.py"}}
 
 
 def benchmark(wb, doc_id: str, rounds: int = 20) -> dict:

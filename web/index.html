@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>阅读人格工作台</title>
-<link rel="stylesheet" href="/style.css?v=6">
+<link rel="stylesheet" href="/style.css?v=7">
 </head>
-<body data-build="6">
+<body data-build="7">
 <header id="topbar">
-  <strong class="brand">阅读人格工作台</strong><span class="badge" id="build">v6</span>
+  <strong class="brand">阅读人格工作台</strong><span class="badge" id="build">v7</span>
   <nav class="tabs">
     <button id="tab-projects" class="tab active" data-tab="projects">项目</button>
     <button id="tab-docs" class="tab" data-tab="docs">素材</button>
@@ -179,6 +179,18 @@
     <label>Base URL <input id="prov-url" placeholder="https://api.deepseek.com"></label>
     <label>API Key <input id="prov-key" type="password" placeholder="sk-..."></label>
     <label>模型 <input id="prov-model" placeholder="deepseek-flash"></label>
+    <hr>
+    <label>联网搜索
+      <select id="search-mode">
+        <option value="none">未配置（研究时粘贴 URL）</option>
+        <option value="tavily">Tavily</option>
+        <option value="brave">Brave Search</option>
+        <option value="serper">Serper (Google)</option>
+        <option value="searxng">SearXNG（自建）</option>
+      </select>
+    </label>
+    <label>搜索 Key <input id="search-key" type="password" placeholder="配置后可直接联网研究"></label>
+    <label>搜索端点 <input id="search-endpoint" placeholder="SearXNG 地址或自定义端点"></label>
     <div class="modal-actions">
       <button id="prov-save">保存</button>
       <button id="prov-close" class="ghost">关闭</button>
@@ -187,6 +199,6 @@
   </div>
 </div>
 
-<script src="/app.js?v=6"></script>
+<script src="/app.js?v=7"></script>
 </body>
 </html>

@@ -62,6 +62,22 @@ python verify.py all     # 或 make verify
 - **角色重解析**：手动人格可重建证据集与语气样例（被引述次数、代表引文）。
 - **开发者模式**：右侧看板列出每一次 expand / retrieve / generate / rewrite 调用的耗时、模型、状态与请求/响应 JSON。
 
+## 联网搜索
+
+研究有两条路：
+
+1. **默认（none）**：研究弹窗里粘贴 1–3 个 URL，抓取、快照、抽 claim、入上下文。
+2. **配置搜索服务**：设置里选 Tavily / Brave / Serper / SearXNG，填 Key（SearXNG 填实例地址），之后研究只需输入主题，自动搜索 → 抓取 → dossier。
+
+| 服务 | 需要 | 说明 |
+|---|---|---|
+| Tavily | API Key | 面向研究，返回摘要，接入最简单 |
+| Brave Search | API Key | `X-Subscription-Token` |
+| Serper | API Key | Google 结果 |
+| SearXNG | 实例地址 | 自建/私有实例，`/search?format=json` |
+
+搜索失败、Key 缺失或无结果时返回 `offline` 并说明原因，不会伪造来源。
+
 ## 三种回答模式
 
 | 模式 | 行为 | 适用 |

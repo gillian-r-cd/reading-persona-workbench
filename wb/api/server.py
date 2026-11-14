@@ -118,7 +118,7 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path == "/" and "v" not in u.query:
             self.send_response(302)
-            self.send_header("Location", "/index.html?v=6")
+            self.send_header("Location", "/index.html?v=7")
             self.send_header("Cache-Control", "no-store, max-age=0")
             self.send_header("Pragma", "no-cache")
             self.send_header("Content-Length", "0")
@@ -261,6 +261,10 @@ class Handler(BaseHTTPRequestHandler):
         safe = {"mode": s.get("mode", "offline"), "base_url": s.get("base_url", ""),
                 "model": s.get("model", ""), "embed_model": s.get("embed_model", "")}
         safe["has_key"] = bool(s.get("api_key"))
+        ss = self.wb.cfg.search_settings()
+        safe["search"] = {"mode": ss.get("mode", "none"),
+                          "endpoint": ss.get("endpoint", ""),
+                          "has_key": bool(ss.get("api_key"))}
         self._json(safe)
 
     def h_scorecards(self, u, **kw):
@@ -379,6 +383,10 @@ class Handler(BaseHTTPRequestHandler):
                          "api_key": key,
                          "model": b.get("model", "") or old.get("model", ""),
                          "embed_model": b.get("embed_model", "")}
+        old_search = s.get("search", {}) or {}
+        s["search"] = {"mode": b.get("search_mode", old_search.get("mode", "none")),
+                       "endpoint": b.get("search_endpoint", "") or old_search.get("endpoint", ""),
+                       "api_key": b.get("search_api_key", "") or old_search.get("api_key", "")}
         self.wb.cfg.save_settings(s)
         try:
             os.chmod(self.wb.cfg.settings_path, 0o600)

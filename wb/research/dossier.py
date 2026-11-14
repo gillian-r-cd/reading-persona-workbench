@@ -100,13 +100,17 @@ def run_research(cfg, db, session_id: str, subject: str, fetcher,
                                 "error": "", "dossier_id": ""})
     queries = plan_queries(subject)
     if urls is None:
-        urls = list(search(queries)) if search else []
+        try:
+            found = search(queries) if search else []
+        except Exception:
+            found = []
+        urls = [f["url"] if isinstance(f, dict) else f for f in found]
     urls = urls[:max_sources]
     if not urls:
         db.x("UPDATE research_jobs SET status=?, finished_at=?, error=? WHERE id=?",
              ("offline", now_iso(), "no_urls_or_search_unavailable", job_id))
         return {"status": "offline", "job_id": job_id, "sources": 0, "claims": 0,
-                "reason": "研究需要来源：再次点击「联网研究」可粘贴 URL，或在设置中配置搜索服务。"}
+                "reason": "没有可用来源：在设置里配置搜索服务（Tavily/Brave/Serper/SearXNG），或在研究弹窗粘贴 URL。"}
 
     sources, claims, failures = [], [], 0
     for url in urls:
@@ -155,6 +159,7 @@ def run_research(cfg, db, session_id: str, subject: str, fetcher,
         "freshness": now_iso(), "trust_summary": json.dumps(trust, ensure_ascii=False),
         "created_at": now_iso(), "query": json.dumps(queries, ensure_ascii=False),
     })
+    attach(db, session_id, dossier_id)
     db.x("UPDATE research_jobs SET status=?, finished_at=?, dossier_id=? WHERE id=?",
          ("done", now_iso(), dossier_id, job_id))
     return {"status": "done", "job_id": job_id, "dossier_id": dossier_id,

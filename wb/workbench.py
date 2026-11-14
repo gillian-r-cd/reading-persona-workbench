@@ -317,8 +317,12 @@ class Workbench:
                  fetcher=None, max_sources: int = 6) -> dict:
         from .research.dossier import run_research
         from .research.fetch import HttpFetcher
+        from .research.search import get_search
+        search = get_search(self.cfg.search_settings())
         result = run_research(self.cfg, self.db, session_id, subject,
-                              fetcher or HttpFetcher(), urls=urls, max_sources=max_sources)
+                              fetcher or HttpFetcher(), urls=urls, search=search,
+                              max_sources=max_sources)
+        result["search_mode"] = search.name
         if result.get("dossier_id"):
             from .research.dossier import attach
             attach(self.db, session_id, result["dossier_id"])

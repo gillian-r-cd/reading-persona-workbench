@@ -19,7 +19,7 @@ from wb.config import Config  # noqa: E402
 from wb.db import DB  # noqa: E402
 from wb.util import now_iso  # noqa: E402
 
-ALL = ["M0", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "PRODUCT", "BYOK", "REWRITE"]
+ALL = ["M0", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "PRODUCT", "BYOK", "REWRITE", "SEARCH"]
 
 
 def run_one(m: str) -> dict:
