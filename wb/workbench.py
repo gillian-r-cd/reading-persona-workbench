@@ -33,6 +33,8 @@ class Workbench:
     def analyze(self, doc_id: str) -> dict:
         if not self.db.one("SELECT 1 FROM claims WHERE doc_id=? LIMIT 1", (doc_id,)):
             extractor.analyze(self.db, doc_id)
+        from .ingest.repair import repair_section_titles
+        repair_section_titles(self.db, doc_id)
         chunker.build_index(self.db, doc_id)
         registry.ensure_personas(self.db, doc_id)
         return {"doc_id": doc_id}

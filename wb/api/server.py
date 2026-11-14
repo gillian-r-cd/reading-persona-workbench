@@ -118,7 +118,7 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path == "/" and "v" not in u.query:
             self.send_response(302)
-            self.send_header("Location", "/index.html?v=7")
+            self.send_header("Location", "/index.html?v=8")
             self.send_header("Cache-Control", "no-store, max-age=0")
             self.send_header("Pragma", "no-cache")
             self.send_header("Content-Length", "0")

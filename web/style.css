@@ -42,7 +42,9 @@ h4{font-size:12px;color:var(--muted);margin:16px 0 6px;font-weight:600}
 .reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .reader-actions{display:flex;gap:4px;flex-shrink:0}
 .doc-title{font-size:22px;font-weight:600;margin:4px 0 10px}
-.outline{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.outline-wrap{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-bottom:14px}
+.outline-wrap summary{cursor:pointer;color:var(--muted);font-size:13px}
+.outline{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px;max-height:240px;overflow:auto}
 .outline button{font-size:12px;padding:3px 8px;color:var(--muted)}
 .blocks{max-width:760px;font-size:var(--reader-size)}
 .block{margin:0 0 12px;padding:4px 6px;border-radius:6px;white-space:pre-wrap;position:relative}

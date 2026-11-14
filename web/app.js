@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const BUILD = "7";
+  const BUILD = "8";
   try {
     if (document.body.dataset.build !== BUILD) {
       const u = new URL(location.href);
@@ -70,7 +70,12 @@
     } else if (opts.raw !== undefined) {
       init.body = opts.raw;
     }
-    const res = await fetch(path, init);
+    let res;
+    try {
+      res = await fetch(path, init);
+    } catch (e) {
+      throw new Error("无法连接本地服务（可能正在重启），请刷新页面后重试");
+    }
     const text = await res.text();
     let data;
     try { data = text ? JSON.parse(text) : {}; } catch { data = { error: text }; }
@@ -217,7 +222,10 @@
     if (!opts.keepSession) state.session = null;
     $("#doc-title").textContent = doc.title;
     const ol = $("#outline"); ol.innerHTML = "";
-    for (const s of outline.filter((x) => x.level > 0)) {
+    const withBlocks = new Set(blocks.map((b) => b.section_id));
+    const chapters = outline.filter((x) => x.level > 0 && withBlocks.has(x.id));
+    $("#outline-count").textContent = `（${chapters.length}）`;
+    for (const s of chapters) {
       const b = document.createElement("button");
       b.textContent = s.title;
       b.onclick = () => {

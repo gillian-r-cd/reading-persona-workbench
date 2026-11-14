@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>阅读人格工作台</title>
-<link rel="stylesheet" href="/style.css?v=7">
+<link rel="stylesheet" href="/style.css?v=8">
 </head>
-<body data-build="7">
+<body data-build="8">
 <header id="topbar">
-  <strong class="brand">阅读人格工作台</strong><span class="badge" id="build">v7</span>
+  <strong class="brand">阅读人格工作台</strong><span class="badge" id="build">v8</span>
   <nav class="tabs">
     <button id="tab-projects" class="tab active" data-tab="projects">项目</button>
     <button id="tab-docs" class="tab" data-tab="docs">素材</button>
@@ -95,7 +95,10 @@
         <button id="focus" class="mini">专注</button>
       </div>
     </div>
-    <div id="outline" class="outline"></div>
+    <details id="outline-wrap" class="outline-wrap">
+      <summary>目录 <span id="outline-count"></span></summary>
+      <div id="outline" class="outline"></div>
+    </details>
     <div id="blocks" class="blocks"></div>
   </main>
 
@@ -199,6 +202,6 @@
   </div>
 </div>
 
-<script src="/app.js?v=7"></script>
+<script src="/app.js?v=8"></script>
 </body>
 </html>

@@ -184,3 +184,10 @@
 - 研究链路支持 `search(queries)`：无 URL 时自动搜索 → 抓取 → 快照 → dossier，并在 pipeline 内自动 attach 到会话。
 - 验证：`verify.py SEARCH`（四个 provider 的本地 stub + 自动搜索研究）；`verify.py all` 14 套件全 PASS；UI 走查 31/31。
 - 备注：未内置搜索引擎爬虫；需要真实搜索质量请配置 Tavily/Brave/Serper 或自建 SearXNG。
+
+## 目录修复与构建 v8（2026-11-14 19:05）
+
+- 现象：EPUB 目录出现“第 id1223 节 / 第 titlepage 节”；页面报 `Failed to fetch`。
+- 目录根因：EPUB spine 无标题时用 manifest id 兜底。修复：用首块文本生成标题、跳过空 spine、加 `repair_section_titles` 修复存量（毛选 223 个重命名、1 个空节删除）；目录改为可折叠、限高滚动、只显示有内容的章节。
+- Fetch 根因：开发过程中重启本地服务，旧页面在途请求被断开。UI 现在把网络错误翻译为“无法连接本地服务（可能正在重启），请刷新页面”，不再裸报 `Failed to fetch`。
+- 构建 v8；`verify.py all` 14 套件 + UI 31/31 全 PASS。

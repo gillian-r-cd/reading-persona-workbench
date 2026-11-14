@@ -39,7 +39,7 @@ def parse_epub(path: str | Path) -> dict:
                       language=language or "", source=str(p))
         root = add_section(doc, title or p.stem, level=0, kind="root")
         cur = root
-        for idref in spine:
+        for spine_idx, idref in enumerate(spine):
             href = manifest.get(idref)
             if not href:
                 continue
@@ -51,9 +51,15 @@ def parse_epub(path: str | Path) -> dict:
             sub = parse_html_text(raw.decode("utf-8", "replace"), doc_type="book")
             subs = [s for s in sub["sections"] if s["level"] > 0]
             if not subs:
-                # no headings: one section per spine item
+                # no headings: derive a title from the first block; skip empty spine items
+                body = [b for b in sub["blocks"] if b["kind"] != "heading"]
+                if not body:
+                    continue
                 head = next((b["text"] for b in sub["blocks"] if b["kind"] == "heading"), "")
-                cur = add_section(doc, head or f"第 {idref} 节", level=1, kind="chapter")
+                if not head:
+                    first = body[0]["text"].strip().split("\n")[0]
+                    head = first[:30] if len(first) <= 40 else f"第 {spine_idx + 1} 节"
+                cur = add_section(doc, head, level=1, kind="chapter")
                 for b in sub["blocks"]:
                     add_block(doc, cur, b["text"], b["kind"], b.get("page_from"), b.get("page_to"),
                               b.get("attrs"))
