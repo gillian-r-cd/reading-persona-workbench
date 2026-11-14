@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+vault/
+eval/
+fixtures/corpus/generated/
+.DS_Store

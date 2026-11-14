@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阅读人格工作台</title>
+<link rel="stylesheet" href="/style.css?v=5">
+</head>
+<body data-build="5">
+<header id="topbar">
+  <strong class="brand">阅读人格工作台</strong><span class="badge" id="build">v5</span>
+  <nav class="tabs">
+    <button id="tab-projects" class="tab active" data-tab="projects">项目</button>
+    <button id="tab-docs" class="tab" data-tab="docs">素材</button>
+    <button id="tab-sessions" class="tab" data-tab="sessions">会话</button>
+  </nav>
+  <button id="btn-research" class="ghost">联网研究</button>
+  <button id="btn-board" class="ghost">上下文板</button>
+  <button id="btn-dev" class="ghost">开发者</button>
+  <button id="btn-settings" class="ghost">设置</button>
+  <span id="status" class="status"></span>
+</header>
+
+<div id="layout">
+  <aside id="sidebar" class="panel">
+    <!-- 项目 -->
+    <section id="panel-projects">
+      <div class="panel-head"><h3>项目</h3><button id="new-project" class="mini">＋ 新建</button></div>
+      <div id="project-list" class="list"></div>
+      <div id="project-detail" class="hidden">
+        <div id="project-name" class="project-name"></div>
+        <div id="project-desc" class="hint"></div>
+        <h4>素材 <small id="project-doc-count"></small></h4>
+        <div id="project-docs" class="list"></div>
+        <div class="row">
+          <select id="add-doc-select"></select>
+          <button id="add-doc" class="mini">加入</button>
+        </div>
+        <h4>关联</h4>
+        <div id="project-links" class="list"></div>
+        <div class="row">
+          <select id="link-src"></select>
+          <select id="link-kind">
+            <option value="related">相关</option>
+            <option value="cites">引用</option>
+            <option value="rebuts">反驳</option>
+            <option value="same-topic">同主题</option>
+          </select>
+          <select id="link-dst"></select>
+          <button id="add-link" class="mini">连接</button>
+        </div>
+        <button id="open-project" class="primary block-btn">进入项目对话</button>
+        <button id="rename-project" class="ghost block-btn">重命名项目</button>
+        <button id="del-project" class="ghost block-btn">删除项目（保留素材）</button>
+      </div>
+    </section>
+
+    <!-- 素材 -->
+    <section id="panel-docs" class="hidden">
+      <div class="panel-head"><h3>素材</h3></div>
+      <input id="doc-search" placeholder="搜索标题 / 作者">
+      <div id="doc-list" class="list"></div>
+      <label class="upload"><input type="file" id="file">＋ 导入文档</label>
+      <div id="persona-admin" class="hidden">
+        <div class="panel-head"><h4>人格</h4></div>
+        <div id="persona-list" class="list"></div>
+        <div class="persona-form">
+          <input id="np-name" placeholder="角色名，如：陈薇">
+          <select id="np-kind">
+            <option value="QUOTED_PERSON">被引述者</option>
+            <option value="SUBJECT">案例主体</option>
+            <option value="SYNTHETIC">合成角色</option>
+            <option value="AUTHOR">作者</option>
+          </select>
+          <input id="np-register" placeholder="语气，如：口语、直接">
+          <button id="np-create" class="mini">新建人格</button>
+        </div>
+        <label class="upload"><input type="file" id="corpus-file">＋ 添加访谈 / 评论语料</label>
+      </div>
+    </section>
+
+    <!-- 会话 -->
+    <section id="panel-sessions" class="hidden">
+      <div class="panel-head"><h3>会话</h3><button id="new-session" class="mini">＋ 新会话</button></div>
+      <div id="session-list" class="list"></div>
+    </section>
+  </aside>
+
+  <main id="reader" class="panel">
+    <div class="reader-head">
+      <span id="doc-title" class="doc-title">选择或导入一份素材</span>
+      <div class="reader-actions">
+        <button id="font-dec" class="mini">A−</button>
+        <button id="font-inc" class="mini">A+</button>
+        <button id="focus" class="mini">专注</button>
+      </div>
+    </div>
+    <div id="outline" class="outline"></div>
+    <div id="blocks" class="blocks"></div>
+  </main>
+
+  <aside id="board" class="panel hidden">
+    <h3>上下文板 <small id="board-tokens"></small></h3>
+    <div id="board-body"></div>
+  </aside>
+
+  <aside id="chat" class="panel">
+    <div class="chat-head">
+      <select id="persona" title="人格"></select>
+      <label class="multi-toggle"><input type="checkbox" id="multi"> 多角色</label>
+    </div>
+    <div class="chat-head">
+      <select id="mode" title="作者模式">
+        <option value="textual_author">文本作者</option>
+        <option value="historical_author">历史作者</option>
+      </select>
+      <select id="strictness" title="事实约束">
+        <option value="strict">严格引用</option>
+        <option value="rewrite">有据改写</option>
+        <option value="labeled">标注解读</option>
+      </select>
+    </div>
+    <div id="multi-panel" class="multi-panel hidden"></div>
+    <div id="messages" class="messages">
+      <div class="hint">选中左侧文字可以直接提问；回答里的 [S1] 可以点回原文。</div>
+    </div>
+    <div class="composer">
+      <textarea id="question" rows="2" placeholder="问作者，或问书中的人物……"></textarea>
+      <button id="send">发送</button>
+    </div>
+  </aside>
+</div>
+
+<aside id="dev-panel" class="dev-panel hidden">
+  <header class="dev-head">
+    <strong>开发者 · 调用与检索</strong>
+    <button id="dev-close" class="mini">关闭</button>
+  </header>
+  <div id="dev-stats" class="dev-stats"></div>
+  <div class="dev-body">
+    <div class="dev-table">
+      <table>
+        <thead><tr><th>时间</th><th>类型</th><th>耗时</th><th>模型</th><th>状态</th></tr></thead>
+        <tbody id="dev-calls"></tbody>
+      </table>
+    </div>
+    <pre id="dev-detail" class="dev-detail">点一条调用查看详情</pre>
+  </div>
+</aside>
+
+<div id="toolbar" class="toolbar hidden">
+  <button data-act="ask">问此人格</button>
+  <button data-act="explain">解释这段</button>
+  <button data-act="check">核查</button>
+  <button data-act="pin">钉入上下文</button>
+</div>
+
+<div id="ask-modal" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="ask-title">提示</h3>
+    <div id="ask-desc" class="hint"></div>
+    <input id="ask-input" placeholder="输入内容">
+    <div class="modal-actions">
+      <button id="ask-ok">确定</button>
+      <button id="ask-cancel" class="ghost">取消</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <h3>模型设置（BYOK）</h3>
+    <label>模式
+      <select id="prov-mode">
+        <option value="offline">离线（抽取式）</option>
+        <option value="byok">云端 API</option>
+      </select>
+    </label>
+    <label>Base URL <input id="prov-url" placeholder="https://api.deepseek.com"></label>
+    <label>API Key <input id="prov-key" type="password" placeholder="sk-..."></label>
+    <label>模型 <input id="prov-model" placeholder="deepseek-flash"></label>
+    <div class="modal-actions">
+      <button id="prov-save">保存</button>
+      <button id="prov-close" class="ghost">关闭</button>
+    </div>
+    <p class="fine">Key 只保存在本机 vault/settings.json（权限 600），不会上传。</p>
+  </div>
+</div>
+
+<script src="/app.js?v=5"></script>
+</body>
+</html>

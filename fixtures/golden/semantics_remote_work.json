@@ -1,0 +1,24 @@
+{
+  "thesis_contains": ["核心主张", "瓶颈不是工具", "书面协作"],
+  "quote": {
+    "text": "我们没有输在工具上，输在没有人愿意写清楚。",
+    "speaker": "陈薇"
+  },
+  "entities_include": ["林知远", "陈薇", "Bloom"],
+  "qualifiers_contain": ["仅适用于", "不适用于"],
+  "counters_contain": ["然而", "批评"],
+  "section_titles": [
+    "序言 一个被误读的实验",
+    "第一章 工具不是瓶颈",
+    "第二章 书面协作的复利",
+    "第三章 远程的边界条件",
+    "第四章 反方观点：弱联系与创新",
+    "第五章 结论与建议",
+    "参考文献"
+  ],
+  "refs": [
+    {"year": "2024", "title_contains": "远程之后"},
+    {"year": "2015", "title_contains": "Working from Home"},
+    {"year": "2024", "title_contains": "样本偏差"}
+  ]
+}
